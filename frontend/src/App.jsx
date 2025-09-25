@@ -1,31 +1,34 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import WmvlRadio from './components/wmvlRadio';
 import About from './components/About';
 import Join from './components/Join';
 import Gallery from './components/Gallery';
 import Navbar from './components/Navbar';
+import Schedule from './components/Schedule';
+import Events from './components/Events';
 
 function App() {
-    const [currentPage, setCurrentPage] = useState('Home');
-
-    const renderPage = () => {
-        switch(currentPage) {
-            case 'About':
-                return <About />;
-            case 'Join':
-                return <Join />;
-            case 'Gallery':
-                return <Gallery />;
-            case 'Home':
-            default:
-                return <WmvlRadio />;
-        }
+    const location = useLocation();
+    
+    //Convert route path to page name for navbar
+    const getCurrentPage = () => {
+        const path = location.pathname;
+        if (path === '/') return 'Home';
+        return path.substring(1).charAt(0).toUpperCase() + path.substring(2);
     };
 
     return (
         <div style={{ backgroundColor: '#000000', minHeight: '100vh', color: '#ffffff' }}>
-            <Navbar currentPage={currentPage} setCurrentPage={setCurrentPage} />
-            {renderPage()}
+            <Navbar currentPage={getCurrentPage()} />
+            <Routes>
+                <Route path="/" element={<WmvlRadio />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/schedule" element={<Schedule />} />
+                <Route path="/events" element={<Events />} />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/join" element={<Join />} />
+            </Routes>
         </div>
     )
 }

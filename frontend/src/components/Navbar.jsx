@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { styles } from '../styles/radioStyles.jsx';
 
-const Navbar = ({ currentPage, setCurrentPage }) => {
+const Navbar = ({ currentPage }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
+  const navigate = useNavigate();
 
-  const navItems = ['Home', 'About', 'Schedule', 'Events', 'Gallery', 'Join'];
+  const navItems = [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+    { name: 'Schedule', path: '/schedule' },
+    { name: 'Events', path: '/events' },
+    { name: 'Gallery', path: '/gallery' },
+    { name: 'Join', path: '/join' }
+  ];
 
   const handleItemClick = (item) => {
-    setCurrentPage(item);
-    console.log(`Navigating to ${item}`);
+    navigate(item.path);
+    console.log(`Navigating to ${item.name}`);
   };
 
   const getNavLinkStyle = (item) => {
     let style = { ...styles.navLink };
     
-    // Special styling for "Join" button
-    if (item === 'Join') {
+
+    if (item.name === 'Join') {
       style = {
         ...style,
         color: '#ff0000',
@@ -23,8 +32,8 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
         fontWeight: 'bold'
       };
       
-      // When hovering over Join button
-      if (hoveredItem === item) {
+      //When hovering over Join button
+      if (hoveredItem === item.name) {
         style = {
           ...style,
           color: '#ffffff',
@@ -32,12 +41,12 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
         };
       }
     } else {
-      // Normal styling for other items
-      if (currentPage === item) {
+      //Normal styling for other items
+      if (currentPage === item.name) {
         style = { ...style, ...styles.navLinkActive };
       }
       
-      if (hoveredItem === item && currentPage !== item) {
+      if (hoveredItem === item.name && currentPage !== item.name) {
         style = { ...style, ...styles.navLinkHover };
       }
     }
@@ -53,15 +62,15 @@ const Navbar = ({ currentPage, setCurrentPage }) => {
         </div>
         <ul style={styles.navList}>
           {navItems.map((item) => (
-            <li key={item} style={styles.navItem}>
+            <li key={item.name} style={styles.navItem}>
               <a
                 style={getNavLinkStyle(item)}
                 onClick={() => handleItemClick(item)}
-                onMouseEnter={() => setHoveredItem(item)}
+                onMouseEnter={() => setHoveredItem(item.name)}
                 onMouseLeave={() => setHoveredItem(null)}
-                aria-label={`Navigate to ${item}`}
+                aria-label={`Navigate to ${item.name}`}
               >
-                {item}
+                {item.name}
               </a>
             </li>
           ))}

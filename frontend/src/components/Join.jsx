@@ -7,6 +7,7 @@ const Join = () => {
       <div style={styles.content}>
         <div style={styles.pageContent}>
           <h1 style={styles.pageTitle}>Join</h1>
+          <h2 style={styles.motto2}>The Pulse.</h2>
           
           <div style={styles.joinPageContent}>
             <div style={styles.joinSection}>

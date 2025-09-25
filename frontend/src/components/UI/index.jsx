@@ -101,6 +101,21 @@ export const Footer = () => (
         wmvlradio@mville.edu
       </a>
     </div>
+    <div style={styles.socialLinks}>
+      <a 
+        href="https://instagram.com/wmvlradio" 
+        style={styles.instagramLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Follow WMVL on Instagram"
+      >
+        <img 
+          src="/instagram-icon.svg" 
+          alt="Instagram" 
+          style={styles.instagramIcon}
+        />
+      </a>
+    </div>
     <div>
       <p>© {currentYear} WMVL • digital radio collective</p>
     </div>

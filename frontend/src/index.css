@@ -43,6 +43,54 @@ html, body {
   }
 }
 
+/* Keyframe animation for glitch effect */
+@keyframes glitch {
+  0% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+  10% {
+    transform: translate(-2px, 2px);
+    filter: hue-rotate(90deg);
+  }
+  20% {
+    transform: translate(-3px, -1px);
+    filter: hue-rotate(180deg);
+  }
+  30% {
+    transform: translate(3px, 2px);
+    filter: hue-rotate(270deg);
+  }
+  40% {
+    transform: translate(-1px, -2px);
+    filter: hue-rotate(360deg);
+  }
+  50% {
+    transform: translate(2px, -3px);
+    filter: hue-rotate(45deg);
+  }
+  60% {
+    transform: translate(-2px, 1px);
+    filter: hue-rotate(135deg);
+  }
+  70% {
+    transform: translate(1px, 3px);
+    filter: hue-rotate(225deg);
+  }
+  80% {
+    transform: translate(3px, -1px);
+    filter: hue-rotate(315deg);
+  }
+  90% {
+    transform: translate(-1px, 2px);
+    filter: hue-rotate(180deg);
+  }
+  100% {
+    transform: translate(0);
+    filter: hue-rotate(0deg);
+  }
+}
+
 /* Email link hover effects */
 a[href^="mailto:"]:hover {
   color: #ffffff !important;

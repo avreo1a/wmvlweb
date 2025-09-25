@@ -174,6 +174,25 @@ export const styles = {
     transition: 'color 0.3s ease'
   },
 
+  socialLinks: {
+    margin: '15px 0',
+    textAlign: 'center'
+  },
+
+  instagramLink: {
+    textDecoration: 'none',
+    transition: 'all 0.3s ease',
+    display: 'inline-flex',
+    alignItems: 'center'
+  },
+
+  instagramIcon: {
+    width: '20px',
+    height: '20px',
+    filter: 'brightness(0) saturate(100%) invert(100%)',
+    transition: 'filter 0.3s ease'
+  },
+
   navbar: {
     position: 'fixed',
     top: 0,
@@ -253,7 +272,7 @@ export const styles = {
     fontSize: '3em',
     fontWeight: 'bold',
     color: '#ffffff',
-    marginBottom: '40px',
+    marginBottom: '20px',
     letterSpacing: '0.1em',
     textAlign: 'center',
     fontFamily: "'Courier New', monospace"
@@ -268,7 +287,7 @@ export const styles = {
   aboutPageContentCompact: {
     fontSize: '1.1em',
     lineHeight: 1.6,
-    color: '#cccccc',
+    color: '#ffffff',
     marginBottom: '30px'
   },
 
@@ -278,18 +297,30 @@ export const styles = {
   },
 
   motto: {
-    fontSize: '1.5em',
+    fontSize: '1.8em',
     fontWeight: 'bold',
     color: '#ff0000',
     textAlign: 'center',
-    marginTop: '30px',
+    marginTop: '50px',
     marginBottom: '20px',
     letterSpacing: '0.2em',
     fontFamily: "'Courier New', monospace",
     textShadow: '0 0 10px #ff0000',
     animation: 'pulse 2s infinite ease-in-out'
   },
-
+  motto2: {
+    fontSize: '2.6em',
+    fontWeight: 'bold',
+    color: '#ff0000',
+    textAlign: 'center',
+    marginLeft: '30px',
+    marginTop: '-15px',
+    marginBottom: '70px',
+    letterSpacing: '0.2em',
+    fontFamily: "'Courier New', monospace",
+    textShadow: '0 0 10px #ff0000',
+    animation: 'pulse 2s infinite ease-in-out'
+  },
   pictureSection: {
     marginTop: '40px',
     width: '100%'
@@ -374,10 +405,85 @@ export const styles = {
     fontWeight: 'bold',
     fontSize: '1.1em',
     letterSpacing: '0.05em'
+  },
+
+ 
+  comingSoon: {
+    fontSize: '3em',
+    fontWeight: 'bold',
+    color: '#ff0000',
+    textAlign: 'center',
+    marginTop: '1px',
+    marginBottom: '20px',
+    letterSpacing: '0.15em',
+    fontFamily: "'Courier New', monospace",
+    textShadow: '0 0 10px rgba(255, 0, 0, 0.5), 0 0 20px rgba(255, 0, 0, 0.3), 0 0 30px rgba(255, 0, 0, 0.2)',
+    animation: 'glitch 3s ease-in-out infinite'
+  },
+
+  comingSoonSubtext: {
+    fontSize: '1.1em',
+    color: '#888888',
+    textAlign: 'center',
+    fontFamily: "'Courier New', monospace",
+    letterSpacing: '0.05em',
+    fontStyle: 'italic'
+  },
+
+
+  eventsContent: {
+    maxWidth: '600px',
+    margin: '0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '30px'
+  },
+
+  eventPhoto: {
+    width: '100%',
+    maxWidth: '500px',
+    position: 'relative'
+  },
+
+  eventImage: {
+    width: '100%',
+    height: '300px',
+    objectFit: 'cover',
+    borderRadius: '8px',
+    border: '2px solid #333333'
+  },
+
+  eventImagePlaceholder: {
+    width: '100%',
+    height: '300px',
+    backgroundColor: '#111111',
+    border: '2px solid #333333',
+    borderRadius: '8px',
+    display: 'none',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#666666',
+    fontSize: '1.1em',
+    fontFamily: "'Courier New', monospace",
+    letterSpacing: '0.05em'
+  },
+
+  eventTextBox: {
+    width: '100%',
+    maxWidth: '500px',
+    backgroundColor: '#333333',
+    padding: '25px',
+    borderRadius: '8px',
+    fontSize: '1em',
+    lineHeight: 1.6,
+    color: '#ffffff',
+    fontFamily: "'Courier New', monospace",
+    letterSpacing: '0.02em'
   }
 };
 
-// Media queries for responsive design
+
 export const mediaQueries = {
   mobile: '@media (max-width: 768px)',
   tablet: '@media (max-width: 1024px)',
