@@ -1,0 +1,92 @@
+/* Global styles for black background theme */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+  color: #ffffff;
+  font-family: 'Courier New', monospace;
+  min-height: 100vh;
+}
+
+/* Keyframe animation for the live indicator flashing */
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Keyframe animation for pulsing text */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 10px #ff0000;
+  }
+  50% {
+    transform: scale(1.05);
+    text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000;
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 10px #ff0000;
+  }
+}
+
+/* Email link hover effects */
+a[href^="mailto:"]:hover {
+  color: #ffffff !important;
+  text-shadow: 0 0 8px #ff0000 !important;
+}
+
+#root {
+  background-color: #000000;
+  min-height: 100vh;
+  color: #ffffff;
+}
+
+/* Ensure all text is visible on black background */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;
+}
+
+p {
+  color: #cccccc;
+}
+
+/* Style for member list section */
+.members-section {
+  background-color: #111111;
+  border-top: 1px solid #333333;
+  color: #ffffff;
+  padding: 2rem;
+  margin-top: 2rem;
+}
+
+.members-section h1 {
+  color: #ffffff;
+  margin-bottom: 1rem;
+  font-family: 'Courier New', monospace;
+}
+
+.members-section p {
+  color: #cccccc;
+  margin: 0.5rem 0;
+  font-family: 'Courier New', monospace;
+}
+
+/* Loading text styling */
+.loading-text {
+  color: #888888;
+  font-style: italic;
+}
