@@ -262,6 +262,58 @@ export const styles = {
     fontWeight: 'bold'
   },
 
+  // Mobile Navbar Styles
+  hamburgerButton: {
+    background: 'transparent',
+    border: 'none',
+    color: '#ffffff',
+    fontSize: '1.5em',
+    cursor: 'pointer',
+    padding: '5px',
+    fontFamily: "'Courier New', monospace",
+    transition: 'color 0.3s ease'
+  },
+
+  mobileNavList: {
+    position: 'fixed',
+    top: '70px',
+    left: 0,
+    right: 0,
+    backgroundColor: '#000000',
+    border: '1px solid #333333',
+    borderTop: 'none',
+    flexDirection: 'column',
+    padding: '20px 0',
+    gap: '0',
+    zIndex: 999,
+    boxShadow: '0 2px 10px rgba(0, 0, 0, 0.8)'
+  },
+
+  mobileNavItem: {
+    fontSize: '1em',
+    fontFamily: "'Courier New', monospace",
+    letterSpacing: '0.05em',
+    textTransform: 'uppercase',
+    borderBottom: '1px solid #333333',
+    margin: 0
+  },
+
+  mobileNavLink: {
+    color: '#ffffff',
+    textDecoration: 'none',
+    cursor: 'pointer',
+    padding: '15px 20px',
+    display: 'block',
+    transition: 'all 0.3s ease',
+    borderBottom: '1px solid #333333'
+  },
+
+  mobileNavLinkHover: {
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    color: '#ff0000',
+    textShadow: '0 0 5px #ff0000'
+  },
+
   pageContent: {
     maxWidth: '800px',
     width: '100%',
@@ -480,6 +532,254 @@ export const styles = {
     color: '#ffffff',
     fontFamily: "'Courier New', monospace",
     letterSpacing: '0.02em'
+  },
+
+  // Gallery Styles
+  galleryGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: '20px',
+    maxWidth: '1400px',
+    margin: '0 auto',
+    padding: '20px'
+  },
+
+  galleryItem: {
+    overflow: 'hidden',
+    transition: 'all 0.3s ease',
+    cursor: 'pointer',
+    ':hover': {
+      transform: 'scale(1.05)',
+      zIndex: 1
+    }
+  },
+
+  galleryImage: {
+    width: '100%',
+    height: '800px',
+    objectFit: 'contain',
+    display: 'block',
+    transition: 'all 0.3s ease'
+  },
+
+  galleryItemContent: {
+    padding: '20px'
+  },
+
+  galleryItemTitle: {
+    color: '#ff0000',
+    fontSize: '1.3em',
+    fontWeight: 'bold',
+    marginBottom: '10px',
+    fontFamily: "'Courier New', monospace",
+    letterSpacing: '0.05em'
+  },
+
+  galleryItemDescription: {
+    color: '#cccccc',
+    fontSize: '0.95em',
+    lineHeight: 1.5,
+    marginBottom: '15px',
+    fontFamily: "'Courier New', monospace"
+  },
+
+  galleryItemMeta: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontSize: '0.8em',
+    color: '#888888',
+    fontFamily: "'Courier New', monospace"
+  },
+
+  galleryItemDate: {
+    color: '#888888'
+  },
+
+  galleryItemFeatured: {
+    color: '#ff0000',
+    fontWeight: 'bold'
+  },
+
+  galleryTags: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '5px',
+    marginTop: '10px'
+  },
+
+  galleryTag: {
+    backgroundColor: 'rgba(255, 0, 0, 0.2)',
+    color: '#ff6666',
+    padding: '2px 8px',
+    borderRadius: '12px',
+    fontSize: '0.7em',
+    fontFamily: "'Courier New', monospace"
+  },
+
+  galleryLoading: {
+    textAlign: 'center',
+    color: '#ff0000',
+    fontSize: '1.2em',
+    fontFamily: "'Courier New', monospace",
+    padding: '50px'
+  },
+
+  galleryEmptyState: {
+    textAlign: 'center',
+    color: '#666666',
+    fontSize: '1.1em',
+    fontFamily: "'Courier New', monospace",
+    padding: '50px'
+  },
+
+  galleryEmptyText: {
+    fontSize: '1.2em',
+    color: '#888888'
+  },
+
+  galleryError: {
+    textAlign: 'center',
+    color: '#ff0000',
+    fontSize: '1.1em',
+    fontFamily: "'Courier New', monospace",
+    padding: '50px',
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    border: '1px solid #ff0000',
+    borderRadius: '8px',
+    margin: '20px'
+  },
+
+  // Lightbox Styles
+  lightboxOverlay: {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+    zIndex: 1000,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  lightboxContent: {
+    position: 'relative',
+    maxWidth: '90vw',
+    maxHeight: '90vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  lightboxImage: {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    objectFit: 'contain',
+    display: 'block'
+  },
+
+  lightboxClose: {
+    position: 'absolute',
+    top: '-50px',
+    right: '0px',
+    background: 'rgba(0, 0, 0, 0.8)',
+    border: '2px solid #ff0000',
+    borderRadius: '50%',
+    color: '#ffffff',
+    fontSize: '30px',
+    cursor: 'pointer',
+    zIndex: 1001,
+    fontFamily: "'Courier New', monospace",
+    fontWeight: 'bold',
+    width: '50px',
+    height: '50px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: 'all 0.3s ease'
+  },
+
+  lightboxNavLeft: {
+    position: 'absolute',
+    left: '-80px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'rgba(0, 0, 0, 0.8)',
+    border: '2px solid #ff0000',
+    color: '#ffffff',
+    fontSize: '24px',
+    cursor: 'pointer',
+    padding: '15px 20px',
+    borderRadius: '50%',
+    zIndex: 1001,
+    fontFamily: "'Courier New', monospace",
+    fontWeight: 'bold',
+    transition: 'all 0.3s ease',
+    width: '60px',
+    height: '60px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  lightboxNavRight: {
+    position: 'absolute',
+    right: '-80px',
+    top: '50%',
+    transform: 'translateY(-50%)',
+    background: 'rgba(0, 0, 0, 0.8)',
+    border: '2px solid #ff0000',
+    color: '#ffffff',
+    fontSize: '24px',
+    cursor: 'pointer',
+    padding: '15px 20px',
+    borderRadius: '50%',
+    zIndex: 1001,
+    fontFamily: "'Courier New', monospace",
+    fontWeight: 'bold',
+    transition: 'all 0.3s ease',
+    width: '60px',
+    height: '60px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+
+  lightboxCounter: {
+    position: 'absolute',
+    bottom: '-50px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    color: '#ffffff',
+    fontSize: '16px',
+    fontFamily: "'Courier New', monospace",
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: '8px 16px',
+    borderRadius: '4px',
+    border: '1px solid #ff0000'
+  },
+
+  credits: {
+    marginTop: '10px',
+    fontSize: '0.75em',
+    color: '#555555',
+    fontFamily: "'Courier New', monospace",
+  },
+
+  developerLink: {
+    color: '#888888',
+    textDecoration: 'none',
+    transition: 'all 0.3s ease',
+    fontWeight: 'bold',
+    cursor: 'pointer'
+  },
+
+  developerLinkHover: {
+    color: '#ff0000',
+    textShadow: '0 0 8px #ff0000',
+    textDecoration: 'underline'
   }
 };
 

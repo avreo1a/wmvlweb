@@ -118,6 +118,28 @@ export const Footer = () => (
     </div>
     <div>
       <p>© {currentYear} WMVL • digital radio collective</p>
+      <p style={styles.credits}>
+        Site built with ❤️ by{' '}
+        <a 
+          href="https://www.linkedin.com/in/christian-krause-12a5a41b7/"
+          style={styles.developerLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Christian Krause on LinkedIn"
+          onMouseEnter={(e) => {
+            e.target.style.color = '#ff0000';
+            e.target.style.textShadow = '0 0 8px #ff0000';
+            e.target.style.textDecoration = 'underline';
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.color = '#888888';
+            e.target.style.textShadow = 'none';
+            e.target.style.textDecoration = 'none';
+          }}
+        >
+          Christian Krause
+        </a>
+      </p>
     </div>
   </div>
 );

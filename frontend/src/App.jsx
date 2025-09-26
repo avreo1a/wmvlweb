@@ -7,6 +7,7 @@ import Gallery from './components/Gallery';
 import Navbar from './components/Navbar';
 import Schedule from './components/Schedule';
 import Events from './components/Events';
+import Admin from './components/Admin';
 
 function App() {
     const location = useLocation();
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/events" element={<Events />} />
                 <Route path="/gallery" element={<Gallery />} />
                 <Route path="/join" element={<Join />} />
+                <Route path="/admin" element={<Admin />} />
             </Routes>
         </div>
     )
