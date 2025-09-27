@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { radioConfig } from '../data/tracks';
 
-const STREAM_URL = 'http://54.82.109.78:8000/stream?fbclid=IwZXh0bgNhZW0CMTAAYnJpZBExaWNiVW9nZ1NPaGxCQzRzZAEeBBGb7bboWuhmVUAUax7UxqxDWb78_veR3UVwngFbwW23xzcMvGMV-xcIj0s_aem_51ay4nCl6XotucdCuG3Q7w';
+const STREAM_URL = 'http://54.82.109.78:8000/stream';
 
 export const useRadioState = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -13,33 +13,60 @@ export const useRadioState = () => {
 
   // Initialize audio element
   useEffect(() => {
-    audioRef.current = new Audio(STREAM_URL);
-    audioRef.current.preload = 'none';
+    audioRef.current = new Audio();
+    audioRef.current.preload = 'metadata'; // Preload metadata for faster start
+    audioRef.current.volume = 0.8;
+    // Set stream URL immediately for faster loading
+    audioRef.current.src = STREAM_URL;
     
     const audio = audioRef.current;
     
-    const handleLoadStart = () => setLoading(true);
-    const handleCanPlay = () => setLoading(false);
-    const handleError = (e) => {
-      setLoading(false);
-      setError('Stream unavailable');
-      console.error('Audio error:', e);
-    };
-    const handleLoadedData = () => {
+    const handleCanPlay = () => {
+      console.log('Stream ready to play');
       setLoading(false);
       setError(null);
     };
+    const handleCanPlayThrough = () => {
+      console.log('Stream fully buffered');
+      setLoading(false);
+      setError(null);
+    };
+    const handleError = (e) => {
+      console.error('Audio error:', e, audio.error);
+      setLoading(false);
+      setError('Stream unavailable - server may be offline');
+    };
+    const handlePlaying = () => {
+      console.log('Stream is playing');
+      setLoading(false);
+      setError(null);
+    };
+    const handleWaiting = () => {
+      console.log('Stream buffering...');
+      // Don't show loading for brief buffering
+    };
+    const handleLoadStart = () => {
+      console.log('Loading stream...');
+      // Only show loading on initial load
+      if (!isPlaying) {
+        setLoading(true);
+      }
+    };
     
-    audio.addEventListener('loadstart', handleLoadStart);
     audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('canplaythrough', handleCanPlayThrough);
     audio.addEventListener('error', handleError);
-    audio.addEventListener('loadeddata', handleLoadedData);
+    audio.addEventListener('playing', handlePlaying);
+    audio.addEventListener('waiting', handleWaiting);
+    audio.addEventListener('loadstart', handleLoadStart);
     
     return () => {
-      audio.removeEventListener('loadstart', handleLoadStart);
       audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('canplaythrough', handleCanPlayThrough);
       audio.removeEventListener('error', handleError);
-      audio.removeEventListener('loadeddata', handleLoadedData);
+      audio.removeEventListener('playing', handlePlaying);
+      audio.removeEventListener('waiting', handleWaiting);
+      audio.removeEventListener('loadstart', handleLoadStart);
       audio.pause();
       audio.src = '';
     };
@@ -52,20 +79,37 @@ export const useRadioState = () => {
       if (isPlaying) {
         audioRef.current.pause();
         setIsPlaying(false);
+        setLoading(false);
       } else {
+        console.log('Attempting to play stream:', STREAM_URL);
         setLoading(true);
         setError(null);
-        await audioRef.current.play();
+        
+        // Stream URL is already set in useEffect, just play
+        const playPromise = audioRef.current.play();
+        
+        // Shorter timeout since stream is preloaded
+        const timeoutId = setTimeout(() => {
+          if (loading && !isPlaying) {
+            setLoading(false);
+            setError('Stream connection timeout');
+            console.log('Stream timeout after 5 seconds');
+          }
+        }, 5000);
+        
+        await playPromise;
+        clearTimeout(timeoutId);
         setIsPlaying(true);
         setLoading(false);
+        console.log('Stream started successfully');
       }
     } catch (err) {
       setLoading(false);
-      setError('Failed to play stream');
+      setError('Cannot connect to stream');
       setIsPlaying(false);
-      console.error('Play error:', err);
+      console.error('Play error:', err.message);
     }
-  }, [isPlaying]);
+  }, [isPlaying, loading]);
 
   return {
     isPlaying,
