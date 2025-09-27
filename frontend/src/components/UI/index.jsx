@@ -24,30 +24,48 @@ export const LiveStatus = () => (
   </div>
 );
 
-export const PlayButton = ({ isPlaying, onClick }) => {
+export const PlayButton = ({ isPlaying, loading, error, onClick }) => {
   const handleMouseOver = (e) => {
-    if (!isPlaying) {
+    if (!isPlaying && !loading) {
       e.currentTarget.style.backgroundColor = '#ffffff';
       e.currentTarget.style.color = '#000000';
     }
   };
 
   const handleMouseOut = (e) => {
-    if (!isPlaying) {
+    if (!isPlaying && !loading) {
       e.currentTarget.style.backgroundColor = 'transparent';
       e.currentTarget.style.color = '#ffffff';
     }
   };
 
+  const getButtonText = () => {
+    if (loading) return '⏳ LOADING...';
+    if (error) return '❌ UNAVAILABLE';
+    if (isPlaying) return '⏸ PLAYING';
+    return '▶ LISTEN LIVE';
+  };
+
+  const getButtonStyle = () => {
+    let style = styles.playButton(isPlaying);
+    if (loading) {
+      style = { ...style, opacity: 0.7, cursor: 'wait' };
+    } else if (error) {
+      style = { ...style, borderColor: '#ff0000', color: '#ff0000', cursor: 'not-allowed' };
+    }
+    return style;
+  };
+
   return (
     <button
-      onClick={onClick}
-      style={styles.playButton(isPlaying)}
+      onClick={error ? undefined : onClick}
+      style={getButtonStyle()}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}
-      aria-label={isPlaying ? 'Pause radio' : 'Play radio'}
+      disabled={loading || error}
+      aria-label={loading ? 'Loading stream' : error ? 'Stream unavailable' : isPlaying ? 'Pause radio' : 'Play radio'}
     >
-      {isPlaying ? '⏸ PLAYING' : '▶ LISTEN'}
+      {getButtonText()}
     </button>
   );
 };
@@ -55,15 +73,15 @@ export const PlayButton = ({ isPlaying, onClick }) => {
 export const NowPlaying = ({ track }) => (
   <div style={styles.nowPlaying}>
     <div style={styles.trackTitle}>
-      {track.title}
+      Under Construction
     </div>
     <div style={styles.artistName}>
-      {track.artist}
+      Track info coming soon
     </div>
   </div>
 );
 
-export const GenreNote = () => (
+export const GenreNote = ({ isLive = true }) => (
   <div style={styles.genreNote}>
     broadcasting experimental, electronic, and avant-garde music
   </div>

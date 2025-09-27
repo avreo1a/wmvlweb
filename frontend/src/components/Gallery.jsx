@@ -1,4 +1,85 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
+// Lazy Image Component
+const LazyImage = ({ src, alt, style, onClick, onMouseEnter, onMouseLeave }) => {
+  const [loaded, setLoaded] = useState(false);
+  const [inView, setInView] = useState(false);
+  const imgRef = useRef();
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
+
+    if (imgRef.current) {
+      observer.observe(imgRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const handleLoad = () => {
+    setLoaded(true);
+  };
+
+  return (
+    <div ref={imgRef} style={style}>
+      {inView && (
+        <>
+          <img
+            src={src}
+            alt={alt}
+            style={{
+              ...style,
+              opacity: loaded ? 1 : 0,
+              transition: 'opacity 0.3s ease'
+            }}
+            loading="lazy"
+            onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
+            onLoad={handleLoad}
+          />
+          {!loaded && (
+            <div style={{
+              ...style,
+              position: 'absolute',
+              backgroundColor: '#111111',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#666666',
+              fontSize: '0.8em',
+              fontFamily: "'Courier New', monospace"
+            }}>
+              Loading...
+            </div>
+          )}
+        </>
+      )}
+      {!inView && (
+        <div style={{
+          ...style,
+          backgroundColor: '#111111',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#666666',
+          fontSize: '0.8em',
+          fontFamily: "'Courier New', monospace"
+        }}>
+          •••
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Gallery = () => {
   const [photos, setPhotos] = useState([]);
@@ -178,11 +259,11 @@ const Gallery = () => {
       ) : (
         <div style={styles.grid}>
           {photos.map((photo, index) => (
-            <img
+            <LazyImage
               key={photo.id}
               src={`http://localhost:5000/uploads/${photo.image_filename}`}
               alt="Gallery photo"
-              style={styles.photo}
+              style={{...styles.photo, position: 'relative'}}
               onClick={() => openLightbox(index)}
               onMouseEnter={(e) => e.target.style.transform = 'scale(1.05)'}
               onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}

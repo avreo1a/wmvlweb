@@ -25,6 +25,8 @@ const WMVLRadio = () => {
     isPlaying,
     currentTrack,
     listeners,
+    loading,
+    error,
     togglePlay,
     setCurrentTrack,
     setListeners
@@ -54,9 +56,25 @@ const WMVLRadio = () => {
 
         {/* Player Container */}
         <div style={styles.playerContainer}>
-          <PlayButton isPlaying={isPlaying} onClick={togglePlay} />
+          <PlayButton 
+            isPlaying={isPlaying} 
+            loading={loading}
+            error={error}
+            onClick={togglePlay} 
+          />
           <NowPlaying track={tracks[currentTrack]} />
           <GenreNote />
+          {error && (
+            <div style={{
+              color: '#ff0000',
+              fontSize: '0.8em',
+              marginTop: '10px',
+              textAlign: 'center',
+              fontFamily: "'Courier New', monospace"
+            }}>
+              Stream temporarily unavailable. Please try again later.
+            </div>
+          )}
         </div>
 
         <Stats listeners={listeners} />
