@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { buildApiUrl, buildUploadUrl } from '../utils/api';
 
 // Lazy Image Component
 const LazyImage = ({ src, alt, style, onClick, onMouseEnter, onMouseLeave }) => {
@@ -90,7 +91,10 @@ const Gallery = () => {
   useEffect(() => {
     const loadPhotos = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/gallery');
+        const response = await fetch(buildApiUrl('/api/gallery'));
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setPhotos(data.gallery || []);
       } catch (error) {
@@ -261,7 +265,7 @@ const Gallery = () => {
           {photos.map((photo, index) => (
             <LazyImage
               key={photo.id}
-              src={`http://localhost:5000/uploads/${photo.image_filename}`}
+              src={buildUploadUrl(photo.image_filename)}
               alt="Gallery photo"
               style={{...styles.photo, position: 'relative'}}
               onClick={() => openLightbox(index)}
@@ -275,7 +279,7 @@ const Gallery = () => {
       {lightbox.open && (
         <div style={styles.overlay} onClick={closeLightbox}>
           <img
-            src={`http://localhost:5000/uploads/${photos[lightbox.index].image_filename}`}
+            src={buildUploadUrl(photos[lightbox.index].image_filename)}
             alt="Lightbox photo"
             style={styles.lightboxPhoto}
             onClick={(e) => e.stopPropagation()}

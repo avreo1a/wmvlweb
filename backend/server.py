@@ -344,4 +344,6 @@ class Events(db.Model):
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()  # Create database tables for our data models
-    app.run(debug=True)
+    # Bind to all interfaces (0.0.0.0) so other computers can access it
+    # Change port if needed (default 5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)

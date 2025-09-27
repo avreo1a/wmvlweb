@@ -200,7 +200,7 @@ const Admin = () => {
 
   const loadGalleryItems = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/gallery');
+      const response = await fetch(buildApiUrl('/api/gallery'));
       const result = await response.json();
       setGalleryItems(result.gallery || []);
     } catch (error) {
@@ -210,7 +210,7 @@ const Admin = () => {
 
   const loadEvents = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/events');
+      const response = await fetch(buildApiUrl('/api/events'));
       const result = await response.json();
       setEvents(result.events || []);
     } catch (error) {
@@ -230,7 +230,7 @@ const Admin = () => {
     formData.append('tags', galleryForm.tags);
 
     try {
-      const response = await fetch('http://localhost:5000/admin/upload', {
+      const response = await fetch(buildApiUrl('/admin/upload'), {
         method: 'POST',
         body: formData
       });
@@ -256,7 +256,7 @@ const Admin = () => {
     setLoading({ ...loading, events: true });
 
     try {
-      const response = await fetch('http://localhost:5000/api/events', {
+      const response = await fetch(buildApiUrl('/api/events'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -286,7 +286,7 @@ const Admin = () => {
   const deleteGalleryItem = async (id) => {
     if (window.confirm('Are you sure you want to delete this gallery item?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/gallery/${id}`, {
+        const response = await fetch(buildApiUrl(`/api/gallery/${id}`), {
           method: 'DELETE'
         });
         
@@ -306,7 +306,7 @@ const Admin = () => {
   const deleteEvent = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/events/${id}`, {
+      const response = await fetch(buildApiUrl(`/api/events/${id}`), {
           method: 'DELETE'
         });
         
@@ -415,7 +415,7 @@ const Admin = () => {
                   <div style={adminStyles.adminItemInfo}>
                     {item.image_filename && (
                       <img 
-                        src={`http://localhost:5000/uploads/${item.image_filename}`}
+                        src={buildUploadUrl(item.image_filename)}
                         alt={item.title}
                         style={adminStyles.previewImage}
                       />
