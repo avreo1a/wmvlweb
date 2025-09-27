@@ -40,8 +40,8 @@ export const PlayButton = ({ isPlaying, loading, error, onClick }) => {
   };
 
   const getButtonText = () => {
-    if (loading) return '⏳ LOADING...';
-    if (error) return '❌ UNAVAILABLE';
+    if (loading) return 'LOADING...';
+    if (error) return 'UNAVAILABLE';
     if (isPlaying) return '⏸ PLAYING';
     return '▶ LISTEN LIVE';
   };
