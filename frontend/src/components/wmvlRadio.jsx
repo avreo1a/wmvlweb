@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { tracks } from '../data/tracks';
 import { styles } from '../styles/radioStyles.jsx';
+import { useAudio } from '../contexts/AudioContext';
 import { 
-  useRadioState, 
-  useTrackRotation, 
   useListenerUpdates, 
   useBackgroundTrackChanges 
 } from '../hooks/useRadio';
@@ -20,20 +19,12 @@ import {
 
 const WMVLRadio = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [currentTrack, setCurrentTrack] = useState(0);
+  const [listeners, setListeners] = useState(127);
 
-  const {
-    isPlaying,
-    currentTrack,
-    listeners,
-    loading,
-    error,
-    togglePlay,
-    setCurrentTrack,
-    setListeners
-  } = useRadioState();
+  const { isPlaying, loading, error, togglePlay } = useAudio();
 
   // Custom hooks for side effects
-  useTrackRotation(isPlaying, setCurrentTrack, tracks.length);
   useListenerUpdates(setListeners);
   useBackgroundTrackChanges(isPlaying, setCurrentTrack, tracks.length);
 

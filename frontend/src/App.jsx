@@ -8,6 +8,8 @@ import Navbar from './components/Navbar';
 import Schedule from './components/Schedule';
 import Events from './components/Events';
 import Admin from './components/Admin';
+import MiniPlayer from './components/MiniPlayer';
+import { AudioProvider } from './contexts/AudioContext';
 
 function App() {
     const location = useLocation();
@@ -20,18 +22,21 @@ function App() {
     };
 
     return (
-        <div style={{ backgroundColor: '#000000', minHeight: '100vh', color: '#ffffff' }}>
-            <Navbar currentPage={getCurrentPage()} />
-            <Routes>
-                <Route path="/" element={<WmvlRadio />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/schedule" element={<Schedule />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/gallery" element={<Gallery />} />
-                <Route path="/join" element={<Join />} />
-                <Route path="/admin" element={<Admin />} />
-            </Routes>
-        </div>
+        <AudioProvider>
+            <div style={{ backgroundColor: '#000000', minHeight: '100vh', color: '#ffffff' }}>
+                <Navbar currentPage={getCurrentPage()} />
+                <Routes>
+                    <Route path="/" element={<WmvlRadio />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/schedule" element={<Schedule />} />
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/gallery" element={<Gallery />} />
+                    <Route path="/join" element={<Join />} />
+                    <Route path="/admin" element={<Admin />} />
+                </Routes>
+                <MiniPlayer />
+            </div>
+        </AudioProvider>
     )
 }
 export default App;
