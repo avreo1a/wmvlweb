@@ -8,6 +8,77 @@ from datetime import datetime
 app = Flask (__name__)
 CORS(app)  # Enable CORS for all routes
 
+# Database configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Avoids a warning
+
+db = SQLAlchemy(app)
+
+# Database Models
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(150), unique=True, nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
+
+class Gallery(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    image_filename = db.Column(db.String(100), nullable=False)
+    image_url = db.Column(db.String(500), nullable=True)  # For external URLs if needed
+    upload_date = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    is_featured = db.Column(db.Boolean, default=False)
+    tags = db.Column(db.String(300), nullable=True)  # Comma-separated tags
+    
+    def __repr__(self):
+        return f"Gallery('{self.title}', '{self.image_filename}', '{self.upload_date}')"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'image_filename': self.image_filename,
+            'image_url': self.image_url,
+            'upload_date': self.upload_date.isoformat() if self.upload_date else None,
+            'is_featured': self.is_featured,
+            'tags': self.tags.split(',') if self.tags else []
+        }
+
+class Events(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    event_date = db.Column(db.DateTime, nullable=False)
+    location = db.Column(db.String(200), nullable=True)
+    image_filename = db.Column(db.String(100), nullable=True)
+    image_url = db.Column(db.String(500), nullable=True)
+    is_featured = db.Column(db.Boolean, default=False)
+    is_past = db.Column(db.Boolean, default=False)
+    created_date = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    ticket_url = db.Column(db.String(500), nullable=True)
+    tags = db.Column(db.String(300), nullable=True)
+    
+    def __repr__(self):
+        return f"Events('{self.title}', '{self.event_date}')"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'event_date': self.event_date.isoformat() if self.event_date else None,
+            'location': self.location,
+            'image_filename': self.image_filename,
+            'image_url': self.image_url,
+            'is_featured': self.is_featured,
+            'is_past': self.is_past,
+            'created_date': self.created_date.isoformat() if self.created_date else None,
+            'ticket_url': self.ticket_url,
+            'tags': self.tags.split(',') if self.tags else []
+        }
+
 # File upload configuration
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
@@ -268,77 +339,6 @@ def admin_events():
 def uploaded_file(filename):
     """Serve uploaded files"""
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
-
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Avoids a warning
-
-
-db = SQLAlchemy(app)
-
-class Admin(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(150), unique=True, nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password = db.Column(db.String(150), nullable=False)
-
-class Gallery(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    image_filename = db.Column(db.String(100), nullable=False)
-    image_url = db.Column(db.String(500), nullable=True)  # For external URLs if needed
-    upload_date = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    is_featured = db.Column(db.Boolean, default=False)
-    tags = db.Column(db.String(300), nullable=True)  # Comma-separated tags
-    
-    def __repr__(self):
-        return f"Gallery('{self.title}', '{self.image_filename}', '{self.upload_date}')"
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'description': self.description,
-            'image_filename': self.image_filename,
-            'image_url': self.image_url,
-            'upload_date': self.upload_date.isoformat() if self.upload_date else None,
-            'is_featured': self.is_featured,
-            'tags': self.tags.split(',') if self.tags else []
-        }
-
-class Events(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    event_date = db.Column(db.DateTime, nullable=False)
-    location = db.Column(db.String(200), nullable=True)
-    image_filename = db.Column(db.String(100), nullable=True)
-    image_url = db.Column(db.String(500), nullable=True)
-    is_featured = db.Column(db.Boolean, default=False)
-    is_past = db.Column(db.Boolean, default=False)
-    created_date = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
-    ticket_url = db.Column(db.String(500), nullable=True)
-    tags = db.Column(db.String(300), nullable=True)
-    
-    def __repr__(self):
-        return f"Events('{self.title}', '{self.event_date}')"
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'description': self.description,
-            'event_date': self.event_date.isoformat() if self.event_date else None,
-            'location': self.location,
-            'image_filename': self.image_filename,
-            'image_url': self.image_url,
-            'is_featured': self.is_featured,
-            'is_past': self.is_past,
-            'created_date': self.created_date.isoformat() if self.created_date else None,
-            'ticket_url': self.ticket_url,
-            'tags': self.tags.split(',') if self.tags else []
-        }
 
 
 if __name__ == "__main__":
