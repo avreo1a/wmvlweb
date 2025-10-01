@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 
-const STREAM_URL = 'http://54.82.109.78:8000/stream';
+const STREAM_URL = 'https://stream.wmvlradio.org/stream';
 
 const AudioContext = createContext();
 
@@ -18,6 +18,7 @@ export const AudioProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [volume, setVolume] = useState(0.8);
   const audioRef = useRef(null);
+  const heartbeatRef = useRef(null);
 
   // Initialize audio element
   useEffect(() => {
@@ -42,6 +43,15 @@ export const AudioProvider = ({ children }) => {
       console.error('Audio error:', e, audio.error);
       setLoading(false);
       setError('Stream unavailable');
+      
+      // Auto-reconnect after 3 seconds if it was playing
+      if (isPlaying) {
+        setTimeout(() => {
+          console.log('Attempting to reconnect...');
+          audio.load(); // Reload the stream
+          audio.play().catch(err => console.error('Reconnect failed:', err));
+        }, 3000);
+      }
     };
     const handlePlaying = () => {
       console.log('Stream is playing');
@@ -59,9 +69,46 @@ export const AudioProvider = ({ children }) => {
     };
     const handlePause = () => {
       setIsPlaying(false);
+      // Clear heartbeat when paused
+      if (heartbeatRef.current) {
+        clearInterval(heartbeatRef.current);
+        heartbeatRef.current = null;
+      }
     };
     const handlePlay = () => {
       setIsPlaying(true);
+      
+      // Start heartbeat check every 30 seconds
+      if (heartbeatRef.current) clearInterval(heartbeatRef.current);
+      heartbeatRef.current = setInterval(() => {
+        if (audio.paused && isPlaying) {
+          console.log('Stream appears to have stopped, attempting recovery...');
+          audio.load();
+          audio.play().catch(err => console.error('Heartbeat recovery failed:', err));
+        }
+      }, 30000);
+    };
+    
+    const handleEnded = () => {
+      console.log('Stream ended unexpectedly');
+      setIsPlaying(false);
+      
+      // Auto-restart if stream ends unexpectedly
+      setTimeout(() => {
+        console.log('Restarting stream...');
+        audio.load();
+        audio.play().catch(err => console.error('Restart failed:', err));
+      }, 2000);
+    };
+    
+    const handleStalled = () => {
+      console.log('Stream stalled, attempting recovery...');
+      if (isPlaying) {
+        audio.load();
+        setTimeout(() => {
+          audio.play().catch(err => console.error('Recovery failed:', err));
+        }, 1000);
+      }
     };
     
     audio.addEventListener('canplay', handleCanPlay);
@@ -72,6 +119,8 @@ export const AudioProvider = ({ children }) => {
     audio.addEventListener('loadstart', handleLoadStart);
     audio.addEventListener('pause', handlePause);
     audio.addEventListener('play', handlePlay);
+    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener('stalled', handleStalled);
     
     return () => {
       audio.removeEventListener('canplay', handleCanPlay);
@@ -82,6 +131,15 @@ export const AudioProvider = ({ children }) => {
       audio.removeEventListener('loadstart', handleLoadStart);
       audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('stalled', handleStalled);
+      
+      // Clear heartbeat interval
+      if (heartbeatRef.current) {
+        clearInterval(heartbeatRef.current);
+        heartbeatRef.current = null;
+      }
+      
       audio.pause();
       audio.src = '';
     };
