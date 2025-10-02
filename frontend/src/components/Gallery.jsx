@@ -113,21 +113,33 @@ const Gallery = () => {
   const [photos, setPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [lightbox, setLightbox] = useState({ open: false, index: 0 });
+  const [errorMsg, setErrorMsg] = useState('');
 
   // Fetch photos from backend
   useEffect(() => {
     const loadPhotos = async () => {
       try {
-        const response = await fetch(buildApiUrl('/api/gallery'));
+        const response = await fetch(buildApiUrl('/api/gallery'), { credentials: 'omit' });
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP ${response.status}`);
         }
-        const data = await response.json();
-        setPhotos(data.gallery || []);
+        // Attempt JSON parse with safety
+        let data;
+        const text = await response.text();
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error('Gallery API returned non-JSON:', text.slice(0, 300));
+          throw new Error('Invalid JSON from gallery API');
+        }
+        setPhotos(Array.isArray(data.gallery) ? data.gallery : []);
+        setErrorMsg('');
       } catch (error) {
         console.error('Failed to load photos:', error);
+        setErrorMsg('Could not load gallery. Please check API URL and server.');
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     loadPhotos();
   }, []);
@@ -284,6 +296,9 @@ const Gallery = () => {
   return (
     <div style={styles.container}>
       <h1 style={styles.title}>Gallery</h1>
+      {errorMsg && (
+        <p style={{ color: '#ff4d4f', textAlign: 'center', marginBottom: '20px' }}>{errorMsg}</p>
+      )}
       
       {photos.length === 0 ? (
         <p style={{ textAlign: 'center' }}>No photos yet.</p>
