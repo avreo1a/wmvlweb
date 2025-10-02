@@ -4,6 +4,7 @@ import { buildApiUrl, buildUploadUrl } from '../utils/api';
 // Lazy Image Component
 const LazyImage = ({ src, alt, style, onClick, onMouseEnter, onMouseLeave }) => {
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState(false);
   const [inView, setInView] = useState(false);
   const imgRef = useRef();
 
@@ -27,6 +28,13 @@ const LazyImage = ({ src, alt, style, onClick, onMouseEnter, onMouseLeave }) => 
 
   const handleLoad = () => {
     setLoaded(true);
+    setError(false);
+  };
+
+  const handleError = () => {
+    console.error('Failed to load image:', src);
+    setError(true);
+    setLoaded(true); // Stop showing loading
   };
 
   return (
@@ -38,16 +46,18 @@ const LazyImage = ({ src, alt, style, onClick, onMouseEnter, onMouseLeave }) => 
             alt={alt}
             style={{
               ...style,
-              opacity: loaded ? 1 : 0,
-              transition: 'opacity 0.3s ease'
+              opacity: loaded && !error ? 1 : 0,
+              transition: 'opacity 0.3s ease',
+              display: error ? 'none' : 'block'
             }}
             loading="lazy"
             onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             onLoad={handleLoad}
+            onError={handleError}
           />
-          {!loaded && (
+          {!loaded && !error && (
             <div style={{
               ...style,
               position: 'absolute',
@@ -60,6 +70,23 @@ const LazyImage = ({ src, alt, style, onClick, onMouseEnter, onMouseLeave }) => 
               fontFamily: "'Courier New', monospace"
             }}>
               Loading...
+            </div>
+          )}
+          {error && (
+            <div style={{
+              ...style,
+              position: 'absolute',
+              backgroundColor: '#111111',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ff0000',
+              fontSize: '0.7em',
+              fontFamily: "'Courier New', monospace",
+              textAlign: 'center',
+              padding: '10px'
+            }}>
+              Failed to load
             </div>
           )}
         </>
