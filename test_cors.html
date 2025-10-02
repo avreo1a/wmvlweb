@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WMVL CORS Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #fff;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #333;
+            padding: 20px;
+            margin: 20px 0;
+            background: #111;
+        }
+        button {
+            background: #ff0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .result {
+            background: #222;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 3px solid #ff0000;
+        }
+        .success { border-left-color: #00ff00; }
+        .error { border-left-color: #ff0000; }
+    </style>
+</head>
+<body>
+    <h1>🎵 WMVL CORS Test Tool</h1>
+    <p>This tool helps test CORS configuration between www.wmvlradio.org and wmvlradio.org</p>
+
+    <div class="test-section">
+        <h2>API Endpoint Test</h2>
+        <p>Current domain: <span id="currentDomain"></span></p>
+        <p>Target API URL: <span id="apiUrl"></span></p>
+        
+        <button onclick="testGalleryAPI()">Test Gallery API</button>
+        <button onclick="testEventsAPI()">Test Events API</button>
+        <button onclick="testUploadEndpoint()">Test Upload Endpoint (OPTIONS)</button>
+        
+        <div id="apiResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>File Upload Test</h2>
+        <input type="file" id="testFile" accept="image/*">
+        <input type="text" id="testTitle" placeholder="Test image title" value="CORS Test Image">
+        <button onclick="testFileUpload()">Test Upload</button>
+        
+        <div id="uploadResults"></div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = window.location.hostname === 'www.wmvlradio.org' ? 
+            'https://wmvlradio.org' : 
+            window.location.origin;
+
+        // Display current configuration
+        document.getElementById('currentDomain').textContent = window.location.hostname;
+        document.getElementById('apiUrl').textContent = API_BASE;
+
+        function addResult(containerId, message, isSuccess = true) {
+            const container = document.getElementById(containerId);
+            const div = document.createElement('div');
+            div.className = `result ${isSuccess ? 'success' : 'error'}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            container.appendChild(div);
+        }
+
+        async function testGalleryAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/api/gallery`, {
+                    method: 'GET',
+                    credentials: 'omit'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('apiResults', `✅ Gallery API Success: ${data.gallery?.length || 0} items`, true);
+                } else {
+                    addResult('apiResults', `❌ Gallery API Failed: ${response.status} ${response.statusText}`, false);
+                }
+            } catch (error) {
+                addResult('apiResults', `❌ Gallery API Error: ${error.message}`, false);
+            }
+        }
+
+        async function testEventsAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/api/events`, {
+                    method: 'GET',
+                    credentials: 'omit'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('apiResults', `✅ Events API Success: ${data.events?.length || 0} items`, true);
+                } else {
+                    addResult('apiResults', `❌ Events API Failed: ${response.status} ${response.statusText}`, false);
+                }
+            } catch (error) {
+                addResult('apiResults', `❌ Events API Error: ${error.message}`, false);
+            }
+        }
+
+        async function testUploadEndpoint() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/upload`, {
+                    method: 'OPTIONS',
+                    credentials: 'omit'
+                });
+                
+                const corsHeaders = {
+                    origin: response.headers.get('Access-Control-Allow-Origin'),
+                    methods: response.headers.get('Access-Control-Allow-Methods'),
+                    headers: response.headers.get('Access-Control-Allow-Headers')
+                };
+                
+                addResult('apiResults', `✅ CORS Preflight Success: Origin=${corsHeaders.origin}, Methods=${corsHeaders.methods}`, true);
+            } catch (error) {
+                addResult('apiResults', `❌ CORS Preflight Error: ${error.message}`, false);
+            }
+        }
+
+        async function testFileUpload() {
+            const fileInput = document.getElementById('testFile');
+            const titleInput = document.getElementById('testTitle');
+            
+            if (!fileInput.files[0]) {
+                addResult('uploadResults', '❌ Please select a file first', false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('title', titleInput.value || 'CORS Test Image');
+            formData.append('description', 'Test upload via CORS test tool');
+            formData.append('is_featured', 'false');
+            formData.append('tags', 'test,cors');
+
+            try {
+                addResult('uploadResults', '⏳ Starting upload...', true);
+                
+                const response = await fetch(`${API_BASE}/admin/upload`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'omit'
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    addResult('uploadResults', `✅ Upload Success: ${result.image?.title || 'Image uploaded'}`, true);
+                } else {
+                    addResult('uploadResults', `❌ Upload Failed: ${result.error || response.statusText}`, false);
+                }
+            } catch (error) {
+                addResult('uploadResults', `❌ Upload Error: ${error.message}`, false);
+            }
+        }
+
+        // Run initial tests
+        window.onload = function() {
+            testGalleryAPI();
+            testEventsAPI();
+            testUploadEndpoint();
+        };
+    </script>
+</body>
+</html>

@@ -70,7 +70,9 @@ const Admin = () => {
 
   const loadGalleryItems = async () => {
     try {
-      const response = await fetch(buildApiUrl('/api/gallery'));
+      const response = await fetch(buildApiUrl('/api/gallery'), {
+        credentials: 'omit'
+      });
       const result = await response.json();
       setGalleryItems(result.gallery || []);
     } catch (error) {
@@ -80,7 +82,9 @@ const Admin = () => {
 
   const loadEvents = async () => {
     try {
-      const response = await fetch(buildApiUrl('/api/events'));
+      const response = await fetch(buildApiUrl('/api/events'), {
+        credentials: 'omit'
+      });
       const result = await response.json();
       setEvents(result.events || []);
     } catch (error) {
@@ -100,30 +104,35 @@ const Admin = () => {
     formData.append('tags', galleryForm.tags);
 
     try {
+      console.log('Uploading to:', buildApiUrl('/admin/upload'));
       const response = await fetch(buildApiUrl('/admin/upload'), {
         method: 'POST',
-        body: formData
+        body: formData,
+        // Don't set Content-Type header for FormData, let browser set it with boundary
+        credentials: 'omit' // Don't send cookies for CORS simplicity
       });
 
       const result = await response.json();
       
-      if (result.success) {
+      if (response.ok && result.success) {
         setMessages({ ...messages, gallery: '✅ Image uploaded successfully!' });
         setGalleryForm({ title: '', description: '', file: null, is_featured: false, tags: '' });
         loadGalleryItems();
         // Clear message after 3 seconds
         setTimeout(() => setMessages({ ...messages, gallery: '' }), 3000);
       } else {
-        setMessages({ ...messages, gallery: `❌ Error: ${result.error}` });
+        const errorMsg = result.error || `Server error: ${response.status} ${response.statusText}`;
+        setMessages({ ...messages, gallery: `❌ Error: ${errorMsg}` });
       }
     } catch (error) {
+      console.error('Upload error:', error);
       setMessages({ ...messages, gallery: `❌ Network error: ${error.message}` });
     }
     
     setLoading({ ...loading, gallery: false });
   };
 
-  const handleEventSubmit = async (e) => {
+    const handleEventSubmit = async (e) => {
     e.preventDefault();
     setLoading({ ...loading, events: true });
 
@@ -142,12 +151,13 @@ const Admin = () => {
     try {
       const response = await fetch(buildApiUrl('/api/events'), {
         method: 'POST',
-        body: formData
+        body: formData,
+        credentials: 'omit'
       });
 
       const result = await response.json();
       
-      if (result.success) {
+      if (response.ok && result.success) {
         setMessages({ ...messages, events: '✅ Event created successfully!' });
         setEventForm({
           title: '', description: '', event_date: '', location: '',
@@ -157,9 +167,11 @@ const Admin = () => {
         // Clear message after 3 seconds
         setTimeout(() => setMessages({ ...messages, events: '' }), 3000);
       } else {
-        setMessages({ ...messages, events: `❌ Error: ${result.error}` });
+        const errorMsg = result.error || `Server error: ${response.status} ${response.statusText}`;
+        setMessages({ ...messages, events: `❌ Error: ${errorMsg}` });
       }
     } catch (error) {
+      console.error('Event creation error:', error);
       setMessages({ ...messages, events: `❌ Network error: ${error.message}` });
     }
     
@@ -170,15 +182,17 @@ const Admin = () => {
     if (window.confirm('Are you sure you want to delete this gallery item?')) {
       try {
         const response = await fetch(buildApiUrl(`/api/gallery/${id}`), {
-          method: 'DELETE'
+          method: 'DELETE',
+          credentials: 'omit'
         });
         
         const result = await response.json();
         
-        if (result.success) {
+        if (response.ok && result.success) {
           loadGalleryItems();
         } else {
-          alert('Error deleting item: ' + result.error);
+          const errorMsg = result.error || `Server error: ${response.status}`;
+          alert('Error deleting item: ' + errorMsg);
         }
       } catch (error) {
         alert('Network error: ' + error.message);
@@ -190,15 +204,17 @@ const Admin = () => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
         const response = await fetch(buildApiUrl(`/api/events/${id}`), {
-          method: 'DELETE'
+          method: 'DELETE',
+          credentials: 'omit'
         });
         
         const result = await response.json();
         
-        if (result.success) {
+        if (response.ok && result.success) {
           loadEvents();
         } else {
-          alert('Error deleting event: ' + result.error);
+          const errorMsg = result.error || `Server error: ${response.status}`;
+          alert('Error deleting event: ' + errorMsg);
         }
       } catch (error) {
         alert('Network error: ' + error.message);

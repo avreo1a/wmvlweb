@@ -119,9 +119,11 @@ const Gallery = () => {
   useEffect(() => {
     const loadPhotos = async () => {
       try {
-        const response = await fetch(buildApiUrl('/api/gallery'), { credentials: 'omit' });
+        const response = await fetch(buildApiUrl('/api/gallery'), { 
+          credentials: 'omit' 
+        });
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         // Attempt JSON parse with safety
         let data;
@@ -136,7 +138,7 @@ const Gallery = () => {
         setErrorMsg('');
       } catch (error) {
         console.error('Failed to load photos:', error);
-        setErrorMsg('Could not load gallery. Please check API URL and server.');
+        setErrorMsg(`Could not load gallery: ${error.message}`);
       } finally {
         setLoading(false);
       }

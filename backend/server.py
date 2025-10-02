@@ -6,7 +6,22 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 
 app = Flask (__name__)
-CORS(app)  # Enable CORS for all routes
+
+# Configure CORS properly for production
+CORS(app, 
+    origins=[
+        "https://www.wmvlradio.org", 
+        "https://wmvlradio.org",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173"
+    ],
+    methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allow_headers=['Content-Type', 'Authorization', 'Accept'],
+    supports_credentials=True,
+    max_age=3600
+)
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -83,13 +98,32 @@ class Events(db.Model):
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size (increased from 16MB)
 
 # Create upload directory if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Handle preflight OPTIONS requests
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = jsonify()
+        response.headers.add("Access-Control-Allow-Origin", request.headers.get('Origin', '*'))
+        response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization,Accept")
+        response.headers.add('Access-Control-Allow-Methods', "GET,PUT,POST,DELETE,OPTIONS")
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+
+# Error handler for request entity too large
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    return jsonify({
+        "error": "File too large. Maximum file size is 50MB.",
+        "max_size": "50MB"
+    }), 413
 
 
 # Gallery API Routes
@@ -276,11 +310,18 @@ def admin_upload_image():
     """Admin route to upload images to gallery"""
     try:
         if 'file' not in request.files:
-            return {"error": "No file provided"}, 400
+            return jsonify({"error": "No file provided"}), 400
         
         file = request.files['file']
         if file.filename == '':
-            return {"error": "No file selected"}, 400
+            return jsonify({"error": "No file selected"}), 400
+        
+        # Check file size before processing
+        if request.content_length and request.content_length > app.config['MAX_CONTENT_LENGTH']:
+            return jsonify({
+                "error": "File too large. Maximum file size is 50MB.",
+                "max_size": "50MB"
+            }), 413
         
         if file and allowed_file(file.filename):
             # Secure the filename and add timestamp to avoid conflicts
@@ -309,12 +350,14 @@ def admin_upload_image():
             db.session.add(new_image)
             db.session.commit()
             
-            return {"success": True, "image": new_image.to_dict()}, 201
+            return jsonify({"success": True, "image": new_image.to_dict()}), 201
         else:
-            return {"error": "Invalid file type"}, 400
+            return jsonify({"error": "Invalid file type. Allowed types: PNG, JPG, JPEG, GIF, WEBP"}), 400
             
     except Exception as e:
-        return {"error": str(e)}, 500
+        # Log the error for debugging
+        print(f"Upload error: {str(e)}")
+        return jsonify({"error": f"Upload failed: {str(e)}"}), 500
 
 @app.route("/admin/gallery")
 def admin_gallery():
