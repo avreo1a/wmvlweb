@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import Schedule from './components/Schedule';
 import Events from './components/Events';
 import Admin from './components/Admin';
+import AdminGallery from './components/AdminGallery';
 import MiniPlayer from './components/MiniPlayer';
 import { AudioProvider } from './contexts/AudioContext';
 
@@ -33,6 +34,7 @@ function App() {
                     <Route path="/gallery" element={<Gallery />} />
                     <Route path="/join" element={<Join />} />
                     <Route path="/admin" element={<Admin />} />
+                    <Route path="/admin/gallery" element={<AdminGallery />} />
                 </Routes>
                 <MiniPlayer />
             </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { buildApiUrl, buildUploadUrl } from '../utils/api';
 
 const Admin = () => {
@@ -105,6 +106,9 @@ const Admin = () => {
 
     try {
       console.log('Uploading to:', buildApiUrl('/admin/upload'));
+      console.log('File size:', galleryForm.file?.size, 'bytes');
+      console.log('File type:', galleryForm.file?.type);
+      
       const response = await fetch(buildApiUrl('/admin/upload'), {
         method: 'POST',
         body: formData,
@@ -112,7 +116,11 @@ const Admin = () => {
         credentials: 'omit' // Don't send cookies for CORS simplicity
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', [...response.headers.entries()]);
+
       const result = await response.json();
+      console.log('Response data:', result);
       
       if (response.ok && result.success) {
         setMessages({ ...messages, gallery: '✅ Image uploaded successfully!' });
@@ -594,6 +602,23 @@ const Admin = () => {
           {/* Gallery Management Section */}
           <div style={styles.adminSection}>
             <h2 style={styles.adminSectionTitle}>📸 Gallery Management</h2>
+            
+            {/* Quick Access Button to New Gallery Admin */}
+            <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(0, 255, 0, 0.1)', border: '1px solid #00ff00', borderRadius: '8px' }}>
+              <h3 style={{ color: '#00ff00', marginBottom: '10px' }}>🚀 Enhanced Gallery Admin</h3>
+              <p style={{ color: '#cccccc', marginBottom: '15px', fontSize: '0.9em' }}>
+                Try our new dedicated gallery admin with drag & drop uploads, progress tracking, and better gallery management!
+              </p>
+              <Link to="/admin/gallery" style={{ textDecoration: 'none' }}>
+                <button style={{
+                  ...styles.adminButton,
+                  background: 'linear-gradient(45deg, #00ff00, #00cc00)',
+                  marginBottom: '15px'
+                }}>
+                  🎨 Open Gallery Admin →
+                </button>
+              </Link>
+            </div>
             
             <form onSubmit={handleGallerySubmit}>
               <div style={styles.formGroup}>

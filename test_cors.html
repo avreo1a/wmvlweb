@@ -47,6 +47,7 @@
         <button onclick="testGalleryAPI()">Test Gallery API</button>
         <button onclick="testEventsAPI()">Test Events API</button>
         <button onclick="testUploadEndpoint()">Test Upload Endpoint (OPTIONS)</button>
+        <button onclick="testDebugEndpoint()">Test Debug Endpoint</button>
         
         <div id="apiResults"></div>
     </div>
@@ -133,6 +134,24 @@
             }
         }
 
+        async function testDebugEndpoint() {
+            try {
+                const response = await fetch(`${API_BASE}/api/debug`, {
+                    method: 'GET',
+                    credentials: 'omit'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult('apiResults', `✅ Debug API Success: Max size=${data.max_content_length_mb}MB, CORS Origin=${data.cors_origin}`, true);
+                } else {
+                    addResult('apiResults', `❌ Debug API Failed: ${response.status} ${response.statusText}`, false);
+                }
+            } catch (error) {
+                addResult('apiResults', `❌ Debug API Error: ${error.message}`, false);
+            }
+        }
+
         async function testFileUpload() {
             const fileInput = document.getElementById('testFile');
             const titleInput = document.getElementById('testTitle');
@@ -175,6 +194,7 @@
             testGalleryAPI();
             testEventsAPI();
             testUploadEndpoint();
+            testDebugEndpoint();
         };
     </script>
 </body>

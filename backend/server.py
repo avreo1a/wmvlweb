@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, jsonify, send_from_directory
+from flask import Flask, render_template, request, redirect, jsonify, send_from_directory, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import os
 from werkzeug.utils import secure_filename
 from datetime import datetime
+from functools import wraps
 
 app = Flask (__name__)
 
@@ -19,9 +20,42 @@ CORS(app,
     ],
     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allow_headers=['Content-Type', 'Authorization', 'Accept'],
-    supports_credentials=True,
+    supports_credentials=False,  # Set to False for simpler CORS
     max_age=3600
 )
+
+# Custom CORS decorator for additional control
+def add_cors_headers(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # Get the origin from the request
+        origin = request.headers.get('Origin')
+        
+        # Define allowed origins
+        allowed_origins = [
+            "https://www.wmvlradio.org", 
+            "https://wmvlradio.org",
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:5173"
+        ]
+        
+        # Execute the route function
+        response = make_response(f(*args, **kwargs))
+        
+        # Add CORS headers
+        if origin in allowed_origins:
+            response.headers['Access-Control-Allow-Origin'] = origin
+        else:
+            response.headers['Access-Control-Allow-Origin'] = '*'  # Fallback for debugging
+            
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept'
+        response.headers['Access-Control-Max-Age'] = '3600'
+        
+        return response
+    return decorated_function
 
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -98,7 +132,7 @@ class Events(db.Model):
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max file size (increased from 16MB)
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size (increased again)
 
 # Create upload directory if it doesn't exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -106,28 +140,68 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Handle preflight OPTIONS requests
+# Handle preflight OPTIONS requests globally
 @app.before_request
 def handle_preflight():
     if request.method == "OPTIONS":
-        response = jsonify()
-        response.headers.add("Access-Control-Allow-Origin", request.headers.get('Origin', '*'))
-        response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization,Accept")
-        response.headers.add('Access-Control-Allow-Methods', "GET,PUT,POST,DELETE,OPTIONS")
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        # Get the origin from the request
+        origin = request.headers.get('Origin')
+        
+        # Define allowed origins
+        allowed_origins = [
+            "https://www.wmvlradio.org", 
+            "https://wmvlradio.org",
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:3000",
+            "http://127.0.0.1:5173"
+        ]
+        
+        response = make_response()
+        if origin in allowed_origins:
+            response.headers['Access-Control-Allow-Origin'] = origin
+        else:
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept'
+        response.headers['Access-Control-Max-Age'] = '3600'
         return response
 
 # Error handler for request entity too large
 @app.errorhandler(413)
 def request_entity_too_large(error):
-    return jsonify({
-        "error": "File too large. Maximum file size is 50MB.",
-        "max_size": "50MB"
-    }), 413
+    response = jsonify({
+        "error": "File too large. Maximum file size is 100MB.",
+        "max_size": "100MB",
+        "status_code": 413
+    })
+    
+    # Add CORS headers to error response
+    origin = request.headers.get('Origin')
+    allowed_origins = [
+        "https://www.wmvlradio.org", 
+        "https://wmvlradio.org",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173"
+    ]
+    
+    if origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
+    else:
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, Accept'
+    
+    return response, 413
 
 
 # Gallery API Routes
-@app.route("/api/gallery", methods=['GET'])
+@app.route("/api/gallery", methods=['GET', 'OPTIONS'])
+@add_cors_headers
 def get_gallery():
     """Get all gallery images"""
     try:
@@ -186,7 +260,8 @@ def update_gallery_image(image_id):
     except Exception as e:
         return {"error": str(e)}, 500
 
-@app.route("/api/gallery/<int:image_id>", methods=['DELETE'])
+@app.route("/api/gallery/<int:image_id>", methods=['DELETE', 'OPTIONS'])
+@add_cors_headers
 def delete_gallery_image(image_id):
     """Delete a gallery image"""
     try:
@@ -198,7 +273,8 @@ def delete_gallery_image(image_id):
         return {"error": str(e)}, 500
 
 # Events API Routes
-@app.route("/api/events", methods=['GET'])
+@app.route("/api/events", methods=['GET', 'OPTIONS'])
+@add_cors_headers
 def get_events():
     """Get all events"""
     try:
@@ -217,7 +293,8 @@ def get_upcoming_events():
     except Exception as e:
         return {"error": str(e)}, 500
 
-@app.route("/api/events", methods=['POST'])
+@app.route("/api/events", methods=['POST', 'OPTIONS'])
+@add_cors_headers
 def add_event():
     """Add a new event"""
     try:
@@ -288,7 +365,8 @@ def update_event(event_id):
     except Exception as e:
         return {"error": str(e)}, 500
 
-@app.route("/api/events/<int:event_id>", methods=['DELETE'])
+@app.route("/api/events/<int:event_id>", methods=['DELETE', 'OPTIONS'])
+@add_cors_headers
 def delete_event(event_id):
     """Delete an event"""
     try:
@@ -303,11 +381,27 @@ def delete_event(event_id):
 @app.route("/admin")
 def admin_dashboard():
     """Admin dashboard"""
+    return render_template('admin_dashboard.html')
+
+@app.route("/admin/gallery")
+def admin_gallery_page():
+    """Gallery admin page"""
+    return render_template('admin_gallery.html')
+
+@app.route("/admin/legacy")
+def admin_legacy():
+    """Legacy admin page (original)"""
     return render_template('admin.html')
 
-@app.route("/admin/upload", methods=['POST'])
+@app.route("/admin/upload", methods=['POST', 'OPTIONS'])
+@add_cors_headers
 def admin_upload_image():
     """Admin route to upload images to gallery"""
+    
+    # Handle preflight OPTIONS request
+    if request.method == 'OPTIONS':
+        return '', 200
+    
     try:
         if 'file' not in request.files:
             return jsonify({"error": "No file provided"}), 400
@@ -319,8 +413,9 @@ def admin_upload_image():
         # Check file size before processing
         if request.content_length and request.content_length > app.config['MAX_CONTENT_LENGTH']:
             return jsonify({
-                "error": "File too large. Maximum file size is 50MB.",
-                "max_size": "50MB"
+                "error": "File too large. Maximum file size is 100MB.",
+                "max_size": "100MB",
+                "received_size": f"{request.content_length / (1024*1024):.2f}MB"
             }), 413
         
         if file and allowed_file(file.filename):
@@ -379,9 +474,36 @@ def admin_events():
 
 # Serve uploaded files
 @app.route('/uploads/<filename>')
+@add_cors_headers
 def uploaded_file(filename):
     """Serve uploaded files"""
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+# Debug endpoint to test CORS and file upload limits
+@app.route('/api/debug', methods=['GET', 'POST', 'OPTIONS'])
+@add_cors_headers
+def debug_endpoint():
+    """Debug endpoint to test CORS and request handling"""
+    if request.method == 'OPTIONS':
+        return '', 200
+    
+    if request.method == 'GET':
+        return jsonify({
+            "status": "OK",
+            "cors_origin": request.headers.get('Origin'),
+            "method": request.method,
+            "max_content_length": app.config.get('MAX_CONTENT_LENGTH'),
+            "max_content_length_mb": app.config.get('MAX_CONTENT_LENGTH', 0) / (1024 * 1024)
+        })
+    
+    if request.method == 'POST':
+        return jsonify({
+            "status": "POST OK",
+            "content_length": request.content_length,
+            "content_type": request.content_type,
+            "files": list(request.files.keys()),
+            "form_data": dict(request.form)
+        })
 
 
 if __name__ == "__main__":
